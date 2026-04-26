@@ -1,6 +1,6 @@
 # Project Structure
 
-* **data/**: Raw data and data collection outputs.
-* **src/**: All Python scripts.
+* **data/**: Raw data and data collection script.
+* **src/**: Python scripts for generating graphs and plotting.
 * **instances/**: Complete and filtered graphs, including visualizations.
-* **analysis/**: Components and degree distributions.
+* **analysis/**: Images showing the components and degree distributions.
