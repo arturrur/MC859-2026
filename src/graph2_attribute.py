@@ -1,4 +1,4 @@
-import sys
+import os
 import ast
 import pandas as pd
 import numpy as np
@@ -7,12 +7,14 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics.pairwise import euclidean_distances
 
-EDGE_THRESHOLD = 0.7
-
 numeric_cols = ['episodes', 'year', 'score', 'members', 'favorites', 'rank']
 other_cols = ['type', 'demographics']
 
-df = pd.read_csv('../data/anime_raw_data.csv')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INPUT_PATH = os.path.join(BASE_DIR, "data", "anime_raw_data.csv")
+OUTPUT_PATH = os.path.join(BASE_DIR, "instances", "attributes.graphml")
+
+df = pd.read_csv(INPUT_PATH)
 
 # Padronizar valores faltantes
 df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
@@ -73,16 +75,11 @@ sim_matrix = 1 / (1 + dist_matrix) # Inverte distância para similaridade [0, 1]
 G = nx.Graph()
 studios_list = studio_features.index.tolist()
 
-count = 0
+
 for i in range(len(studios_list)):
     for j in range(i + 1, len(studios_list)):
         weight = sim_matrix[i, j]
-        if weight > EDGE_THRESHOLD:
-            count += 1
-            G.add_edge(studios_list[i], studios_list[j], weight=float(weight))
+        G.add_edge(studios_list[i], studios_list[j], weight=float(weight))
 
-# Remover isolados para o gráfico não ficar poluído
-G.remove_nodes_from(list(nx.isolates(G)))
 
-nx.write_graphml(G, "graph.graphml")
-print(f"Sucesso! Grafo gerado com {G.number_of_nodes()} nós e {G.number_of_edges()} arestas.")
+nx.write_graphml(G, OUTPUT_PATH)

@@ -1,5 +1,6 @@
 import pandas as pd
 import ast
+import os
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -8,14 +9,12 @@ from sklearn.metrics.pairwise import cosine_similarity
 from collections import Counter
 
 
-#########################
-# 1 - Loading Data and Preprocessing
-#########################
-
-EDGE_THRESHOLD = 0.7
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INPUT_PATH = os.path.join(BASE_DIR, "data", "anime_raw_data.csv")
+OUTPUT_PATH = os.path.join(BASE_DIR, "instances", "theme.graphml")
 
 
-df = pd.read_csv('../data/anime_raw_data.csv')
+df = pd.read_csv(INPUT_PATH)
 
 def extract_names(column_data):
     try:
@@ -92,13 +91,7 @@ for s in studios_names:
 for i in range(len(studios_names)):
     for j in range(i + 1, len(studios_names)):
         similarity = sim_matrix[i][j]
-        if similarity > EDGE_THRESHOLD:
-            G.add_edge(studios_names[i], studios_names[j], weight=float(similarity))
+        G.add_edge(studios_names[i], studios_names[j], weight=float(similarity))
 
 
-# 5 - Removing edgeless nodes
-isolados = [node for node, degree in dict(G.degree()).items() if degree == 0]
-
-G.remove_nodes_from(isolados)
-
-nx.write_graphml(G, "graph.graphml")
+nx.write_graphml(G, OUTPUT_PATH)
